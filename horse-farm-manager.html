@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meadowbrook Farms - Management System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --earth-dark: #2c1810;
+            --earth-medium: #5d4037;
+            --earth-light: #8d6e63;
+            --barn-red: #c62828;
+            --hay-gold: #f9a825;
+            --grass-green: #558b2f;
+            --sky-blue: #1976d2;
+            --cream: #faf7f2;
+            --white: #ffffff;
+            --shadow: rgba(44, 24, 16, 0.15);
+            --overlay: rgba(44, 24, 16, 0.03);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, #f5ebe0 100%);
+            color: var(--earth-dark);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--earth-dark) 0%, var(--earth-medium) 100%);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--cream);
+            letter-spacing: -0.5px;
+        }
+        
+        .logo span {
+            color: var(--hay-gold);
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--cream);
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .nav-tab.active {
+            background: var(--hay-gold);
+            color: var(--earth-dark);
+            font-weight: 600;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .view {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .view.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Field Entry View */
+        .field-entry {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            height: calc(100vh - 180px);
+        }
+        
+        .horse-list {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px var(--shadow);
+            overflow-y: auto;
+        }
+        
+        .horse-list h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--earth-dark);
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--overlay);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--hay-gold);
+        }
+        
+        .horse-item {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--cream);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .horse-item:hover {
+            background: #f5ebe0;
+            border-left-color: var(--hay-gold);
+            transform: translateX(4px);
+        }
+        
+        .horse-item.selected {
+            background: var(--earth-dark);
+            color: white;
+            border-left-color: var(--hay-gold);
+        }
+        
+        .horse-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .horse-meta {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        
+        .entry-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 12px var(--shadow);
+            overflow-y: auto;
+        }
+        
+        .entry-panel h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--earth-dark);
+        }
+        
+        .entry-date {
+            color: var(--earth-light);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-action-btn {
+            padding: 1.25rem;
+            background: var(--cream);
+            border: 2px solid var(--overlay);
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quick-action-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: var(--hay-gold);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+            z-index: 0;
+        }
+        
+        .quick-action-btn span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .quick-action-btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--hay-gold);
+        }
+        
+        .quick-action-btn.active {
+            background: var(--grass-green);
+            color: white;
+            border-color: var(--grass-green);
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--earth-medium);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--overlay);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--earth-dark);
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--overlay);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--hay-gold);
+        }
+        
+        .photo-upload {
+            border: 2px dashed var(--overlay);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .photo-upload:hover {
+            border-color: var(--hay-gold);
+            background: var(--cream);
+        }
+        
+        .photo-upload-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: var(--earth-light);
+        }
+        
+        .save-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--grass-green) 0%, #689f38 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(85, 139, 47, 0.3);
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(85, 139, 47, 0.4);
+        }
+        
+        .save-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Horse Timeline View */
+        .timeline-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+        
+        .timeline-horse-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+        
+        .timeline-horse-details h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--earth-dark);
+        }
+        
+        .timeline-horse-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .meta-label {
+            font-size: 0.85rem;
+            color: var(--earth-light);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+        
+        .meta-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--earth-dark);
+        }
+        
+        .timeline-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            background: var(--cream);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--earth-dark);
+            font-family: 'Crimson Pro', serif;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--earth-light);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .timeline-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+        
+        .timeline-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1.25rem;
+            background: var(--cream);
+            border: 2px solid var(--overlay);
+            border-radius: 20px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            border-color: var(--hay-gold);
+        }
+        
+        .filter-btn.active {
+            background: var(--earth-dark);
+            color: white;
+            border-color: var(--earth-dark);
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--hay-gold), var(--grass-green));
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 3px solid var(--hay-gold);
+            border-radius: 50%;
+        }
+        
+        .timeline-item.medical::before {
+            border-color: var(--barn-red);
+        }
+        
+        .timeline-item.billing::before {
+            border-color: var(--sky-blue);
+        }
+        
+        .timeline-card {
+            background: var(--cream);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--hay-gold);
+        }
+        
+        .timeline-item.medical .timeline-card {
+            border-left-color: var(--barn-red);
+        }
+        
+        .timeline-item.billing .timeline-card {
+            border-left-color: var(--sky-blue);
+        }
+        
+        .timeline-date {
+            font-size: 0.85rem;
+            color: var(--earth-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--earth-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-description {
+            color: var(--earth-medium);
+            line-height: 1.6;
+        }
+        
+        .timeline-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .timeline-tag {
+            padding: 0.25rem 0.75rem;
+            background: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--earth-medium);
+        }
+        
+        /* Billing View */
+        .billing-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .billing-main {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+        
+        .billing-main h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--earth-dark);
+        }
+        
+        .client-selector {
+            margin-bottom: 2rem;
+        }
+        
+        .charges-list {
+            margin-bottom: 2rem;
+        }
+        
+        .charge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--cream);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .charge-info {
+            flex: 1;
+        }
+        
+        .charge-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .charge-date {
+            font-size: 0.85rem;
+            color: var(--earth-light);
+        }
+        
+        .charge-amount {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--earth-dark);
+            font-family: 'Crimson Pro', serif;
+        }
+        
+        .add-charge-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--cream);
+            border: 2px dashed var(--overlay);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--earth-medium);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .add-charge-btn:hover {
+            border-color: var(--hay-gold);
+            background: white;
+        }
+        
+        .billing-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+        }
+        
+        .billing-summary h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--earth-dark);
+        }
+        
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--overlay);
+        }
+        
+        .summary-line.total {
+            border-bottom: none;
+            padding-top: 1rem;
+            border-top: 2px solid var(--earth-dark);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--earth-dark);
+        }
+        
+        .summary-label {
+            color: var(--earth-medium);
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            font-family: 'Crimson Pro', serif;
+        }
+        
+        .generate-invoice-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--sky-blue) 0%, #1565c0 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+            margin-top: 1.5rem;
+        }
+        
+        .generate-invoice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            color: var(--earth-dark);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--earth-medium);
+            padding: 0.5rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-btn.primary {
+            background: var(--grass-green);
+            color: white;
+        }
+        
+        .modal-btn.primary:hover {
+            background: #689f38;
+        }
+        
+        .modal-btn.secondary {
+            background: var(--cream);
+            color: var(--earth-dark);
+        }
+        
+        .modal-btn.secondary:hover {
+            background: #f5ebe0;
+        }
+        
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--grass-green);
+            color: white;
+            padding: 1.25rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(85, 139, 47, 0.4);
+            font-weight: 600;
+            z-index: 1001;
+            animation: slideInRight 0.4s ease;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .field-entry {
+                grid-template-columns: 1fr;
+            }
+            
+            .billing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .timeline-horse-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .timeline-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">Meadow<span>brook</span> Farms</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-view="field-entry">Field Entry</button>
+                <button class="nav-tab" data-view="timeline">Horse Timeline</button>
+                <button class="nav-tab" data-view="billing">Billing</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Field Entry View -->
+        <div class="view active" id="field-entry">
+            <div class="field-entry">
+                <div class="horse-list">
+                    <h2>Select Horse</h2>
+                    <input type="text" class="search-box" placeholder="Search horses..." id="horse-search">
+                    <div id="horse-list-items">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="entry-panel">
+                    <h2 id="selected-horse-name">Select a horse to begin</h2>
+                    <div class="entry-date" id="entry-date"></div>
+                    
+                    <div id="entry-form" style="display: none;">
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" data-action="healthy"><span>✓ Healthy</span></button>
+                            <button class="quick-action-btn" data-action="fed"><span>Fed</span></button>
+                            <button class="quick-action-btn" data-action="exercised"><span>Exercised</span></button>
+                            <button class="quick-action-btn" data-action="groomed"><span>Groomed</span></button>
+                            <button class="quick-action-btn" data-action="medication"><span>Medication</span></button>
+                            <button class="quick-action-btn" data-action="farrier"><span>Farrier</span></button>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Observations</h3>
+                            <div class="form-group">
+                                <label class="form-label">Temperature (°F)</label>
+                                <input type="number" class="form-input" placeholder="99.5" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-textarea" placeholder="Any observations about the horse today..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Photos</h3>
+                            <div class="photo-upload">
+                                <div class="photo-upload-icon">📷</div>
+                                <div>Tap to add photos</div>
+                            </div>
+                        </div>
+                        
+                        <button class="save-btn" onclick="saveEntry()">Save Entry</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline View -->
+        <div class="view" id="timeline">
+            <div class="timeline-header">
+                <div class="timeline-horse-info">
+                    <div class="timeline-horse-details">
+                        <h1>Stardust</h1>
+                        <div class="timeline-horse-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Owner</span>
+                                <span class="meta-value">Sarah Johnson</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Breed</span>
+                                <span class="meta-value">Thoroughbred Mare</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Age</span>
+                                <span class="meta-value">6 years</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Status</span>
+                                <span class="meta-value">In Foal</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-stats">
+                        <div class="stat-card">
+                            <div class="stat-value">45</div>
+                            <div class="stat-label">Days in Care</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Checkups</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Treatments</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-content">
+                <div class="timeline-filters">
+                    <button class="filter-btn active">All Events</button>
+                    <button class="filter-btn">Health Checks</button>
+                    <button class="filter-btn">Medical</button>
+                    <button class="filter-btn">Billing</button>
+                    <button class="filter-btn">Foaling</button>
+                </div>
+                
+                <div class="timeline">
+                    <div class="timeline-item medical">
+                        <div class="timeline-card">
+                            <div class="timeline-date">April 15, 2026</div>
+                            <div class="timeline-title">Ultrasound - 30 Day Check</div>
+                            <div class="timeline-description">
+                                Confirmed pregnancy. Fetus appears healthy and developing normally. Estimated due date: September 22, 2026.
+                            </div>
+                            <div class="timeline-tags">
+                                <span class="timeline-tag">Foaling</span>
+                                <span class="timeline-tag">Ultrasound</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item billing">
+                        <div class="timeline-card">
+                            <div class="timeline-date">April 10, 2026</div>
+                            <div class="timeline-title">Additional Charge: Vitamin Supplement</div>
+                            <div class="timeline-description">
+                                Added prenatal vitamin supplement to daily feeding routine. $45.00
+                            </div>
+                            <div class="timeline-tags">
+                                <span class="timeline-tag">Billing</span>
+                                <span class="timeline-tag">Supplements</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">April 8, 2026</div>
+                            <div class="timeline-title">Daily Check - All Normal</div>
+                            <div class="timeline-description">
+                                Temperature: 99.8°F. Mare is eating well and showing good energy levels. No concerns observed.
+                            </div>
+                            <div class="timeline-tags">
+                                <span class="timeline-tag">Health Check</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item medical">
+                        <div class="timeline-card">
+                            <div class="timeline-date">April 3, 2026</div>
+                            <div class="timeline-title">Cyst Treatment - Follow-up</div>
+                            <div class="timeline-description">
+                                Cyst showing improvement after treatment. Will continue monitoring. Size reduced from 10mm to 6mm.
+                            </div>
+                            <div class="timeline-tags">
+                                <span class="timeline-tag">Medical</span>
+                                <span class="timeline-tag">Follow-up</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">March 28, 2026</div>
+                            <div class="timeline-title">Farrier Visit</div>
+                            <div class="timeline-description">
+                                Routine hoof trimming and shoeing completed. All hooves in good condition.
+                            </div>
+                            <div class="timeline-tags">
+                                <span class="timeline-tag">Farrier</span>
+                                <span class="timeline-tag">Maintenance</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item medical">
+                        <div class="timeline-card">
+                            <div class="timeline-date">March 15, 2026</div>
+                            <div class="timeline-title">Initial Cyst Detection</div>
+                            <div class="timeline-description">
+                                Small cyst detected during routine examination. 10mm diameter. Started monitoring and topical treatment protocol.
+                            </div>
+                            <div class="timeline-tags">
+                                <span class="timeline-tag">Medical</span>
+                                <span class="timeline-tag">Diagnosis</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">March 3, 2026</div>
+                            <div class="timeline-title">Mare Arrived for Foaling Care</div>
+                            <div class="timeline-description">
+                                Stardust arrived from owner's property. Initial health assessment completed. All vitals normal. Expected to foal in approximately 6 months.
+                            </div>
+                            <div class="timeline-tags">
+                                <span class="timeline-tag">Intake</span>
+                                <span class="timeline-tag">Foaling</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing View -->
+        <div class="view" id="billing">
+            <div class="billing-grid">
+                <div class="billing-main">
+                    <h2>Monthly Billing</h2>
+                    
+                    <div class="client-selector">
+                        <label class="form-label">Select Client</label>
+                        <select class="form-select" id="client-select">
+                            <option>Sarah Johnson - Stardust</option>
+                            <option>Mike Wilson - Thunder & Lightning</option>
+                            <option>Emily Chen - Buttercup</option>
+                            <option>Robert Davis - Shadow</option>
+                        </select>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 1rem; color: var(--earth-medium);">April 2026 Charges</h3>
+                    
+                    <div class="charges-list">
+                        <div class="charge-item">
+                            <div class="charge-info">
+                                <div class="charge-name">Monthly Board - Stardust</div>
+                                <div class="charge-date">April 1 - April 30</div>
+                            </div>
+                            <div class="charge-amount">$850.00</div>
+                        </div>
+                        
+                        <div class="charge-item">
+                            <div class="charge-info">
+                                <div class="charge-name">Foaling Care Premium</div>
+                                <div class="charge-date">April 1 - April 30</div>
+                            </div>
+                            <div class="charge-amount">$300.00</div>
+                        </div>
+                        
+                        <div class="charge-item">
+                            <div class="charge-info">
+                                <div class="charge-name">30-Day Ultrasound</div>
+                                <div class="charge-date">April 15</div>
+                            </div>
+                            <div class="charge-amount">$175.00</div>
+                        </div>
+                        
+                        <div class="charge-item">
+                            <div class="charge-info">
+                                <div class="charge-name">Prenatal Vitamin Supplement</div>
+                                <div class="charge-date">April 10</div>
+                            </div>
+                            <div class="charge-amount">$45.00</div>
+                        </div>
+                        
+                        <div class="charge-item">
+                            <div class="charge-info">
+                                <div class="charge-name">Cyst Treatment (3 applications)</div>
+                                <div class="charge-date">April 3</div>
+                            </div>
+                            <div class="charge-amount">$120.00</div>
+                        </div>
+                    </div>
+                    
+                    <button class="add-charge-btn" onclick="openAddChargeModal()">+ Add Additional Charge</button>
+                </div>
+                
+                <div class="billing-summary">
+                    <h3>Invoice Summary</h3>
+                    <div class="summary-line">
+                        <span class="summary-label">Monthly Board</span>
+                        <span class="summary-value">$850.00</span>
+                    </div>
+                    <div class="summary-line">
+                        <span class="summary-label">Foaling Premium</span>
+                        <span class="summary-value">$300.00</span>
+                    </div>
+                    <div class="summary-line">
+                        <span class="summary-label">Additional Charges</span>
+                        <span class="summary-value">$340.00</span>
+                    </div>
+                    <div class="summary-line total">
+                        <span class="summary-label">Total Due</span>
+                        <span class="summary-value">$1,490.00</span>
+                    </div>
+                    <button class="generate-invoice-btn" onclick="generateInvoice()">Generate Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Charge Modal -->
+    <div class="modal" id="add-charge-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Charge</h2>
+                <button class="modal-close" onclick="closeAddChargeModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Service/Item</label>
+                <input type="text" class="form-input" placeholder="e.g., Emergency vet call, Medication">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" class="form-input" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notes (optional)</label>
+                <textarea class="form-textarea" placeholder="Additional details..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeAddChargeModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="addCharge()">Add Charge</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="success-message"></div>
+
+    <script>
+        // Sample horse data
+        const horses = [
+            { id: 1, name: 'Stardust', owner: 'Sarah Johnson', breed: 'Thoroughbred Mare', status: 'In Foal' },
+            { id: 2, name: 'Thunder', owner: 'Mike Wilson', breed: 'Quarter Horse Stallion', status: 'Active' },
+            { id: 3, name: 'Lightning', owner: 'Mike Wilson', breed: 'Quarter Horse Mare', status: 'Active' },
+            { id: 4, name: 'Buttercup', owner: 'Emily Chen', breed: 'Appaloosa Mare', status: 'Boarding' },
+            { id: 5, name: 'Shadow', owner: 'Robert Davis', breed: 'Arabian Gelding', status: 'Training' },
+            { id: 6, name: 'Moonlight', owner: 'Lisa Martinez', breed: 'Paint Horse Mare', status: 'In Foal' },
+            { id: 7, name: 'Copper', owner: 'Tom Anderson', breed: 'Morgan Stallion', status: 'Breeding' },
+            { id: 8, name: 'Daisy', owner: 'Jennifer White', breed: 'Welsh Pony Mare', status: 'Boarding' }
+        ];
+
+        let selectedHorse = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderHorseList();
+            updateDate();
+            
+            // Search functionality
+            document.getElementById('horse-search').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredHorses = horses.filter(horse => 
+                    horse.name.toLowerCase().includes(searchTerm) ||
+                    horse.owner.toLowerCase().includes(searchTerm)
+                );
+                renderHorseList(filteredHorses);
+            });
+        });
+
+        function renderHorseList(horseList = horses) {
+            const container = document.getElementById('horse-list-items');
+            container.innerHTML = horseList.map(horse => `
+                <div class="horse-item ${selectedHorse?.id === horse.id ? 'selected' : ''}" onclick="selectHorse(${horse.id})">
+                    <div class="horse-name">${horse.name}</div>
+                    <div class="horse-meta">${horse.owner} • ${horse.status}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectHorse(id) {
+            selectedHorse = horses.find(h => h.id === id);
+            renderHorseList();
+            document.getElementById('selected-horse-name').textContent = selectedHorse.name;
+            document.getElementById('entry-form').style.display = 'block';
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('entry-date').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const viewName = this.dataset.view;
+                
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active view
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(viewName).classList.add('active');
+            });
+        });
+
+        // Quick actions
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        function saveEntry() {
+            showSuccess('Entry saved successfully!');
+            // Reset form after save
+            setTimeout(() => {
+                document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.form-input, .form-textarea').forEach(input => input.value = '');
+            }, 500);
+        }
+
+        function openAddChargeModal() {
+            document.getElementById('add-charge-modal').classList.add('active');
+        }
+
+        function closeAddChargeModal() {
+            document.getElementById('add-charge-modal').classList.remove('active');
+        }
+
+        function addCharge() {
+            closeAddChargeModal();
+            showSuccess('Charge added successfully!');
+        }
+
+        function generateInvoice() {
+            showSuccess('Invoice generated! Ready to send to client.');
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('success-message');
+            successEl.textContent = message;
+            successEl.classList.add('show');
+            setTimeout(() => {
+                successEl.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
